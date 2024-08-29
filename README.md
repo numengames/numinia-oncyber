@@ -92,7 +92,7 @@ npm run format
 
 ## Contributing
 
-You can see [CONTRIBUTING](https://github.com/numengames/numinia-oncyber/CONTRIBUTING.md)
+You can see [CONTRIBUTING](CONTRIBUTING.md)
 
 ## 📜 License
 
