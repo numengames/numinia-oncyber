@@ -79,7 +79,7 @@ export default class InteractionDirector {
    * @param {() => void} action - The action to be executed when the interaction is triggered.
    */
   private async createInteractionAuto({ host }: InteractionDirectorParams, action: () => void) {
-    host.onSensorEnter(async () => action);
+    host.onSensorEnter(action);
   }
 
   /**
