@@ -1,12 +1,10 @@
 {
   "name": "numinia-oncyber",
   "version": "1.0.0",
-  "description": "Oncyber Multi-space Game Script Generator",
+  "description": "This project is a warehouse of components designed to implement various functionalities within the Oncyber platform. These components can be used to enhance and customize spaces or levels in Oncyber.",
   "private": "true",
   "type": "module",
   "scripts": {
-    "build-dev": "cross-env NODE_ENV=development rollup -c",
-    "build-prod": "cross-env NODE_ENV=production rollup -c",
     "lint": "eslint . --ext .ts",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "test": "echo \"Error: no test specified\" && exit 1"
