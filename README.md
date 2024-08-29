@@ -68,7 +68,6 @@ To execute any of the available commands below, use the following command in the
 
 ```bash
 npm install             # Install necessary dependencies
-npm run <command-name>  # Run specific command
 ```
 
 ## Available Commands
