@@ -3,19 +3,16 @@ import { Folder, Param, $Param, ScriptBehavior } from '@oo/scripting';
 import TeleportAction from '../../common/components/TeleportAction.ts';
 import InteractionDirector from '../../common/utils/InteractionDirector.ts';
 
-interface TeleportBehaviorInteractionModeInterfaceParams {
+interface TeleportBehaviorParams {
   triggerKey: string;
   secondsDelay: number;
+  fadeInDuration: number;
   interactionMode: string;
   triggerDistance: number;
-  teleportToComponentId: string;
-}
-
-interface TeleportBehaviorAnimationsInterfaceParams {
-  fadeInDuration: number;
   fadeOutDuration: number;
   isFadingAvailable: boolean;
   interactionHoldTime: number;
+  teleportToComponentId: string;
 }
 
 /**
@@ -44,16 +41,14 @@ export default class TeleportBehavior extends ScriptBehavior {
   @Param({
     type: 'string',
     name: 'Trigger key',
-    visible: (params: TeleportBehaviorInteractionModeInterfaceParams) =>
-      params.interactionMode === 'Key',
+    visible: (params: TeleportBehaviorParams) => params.interactionMode === 'Key',
   })
   private triggerKey = 'E';
   @Param({
     step: 0.1,
     type: 'number',
     name: 'Key dialog adjustment',
-    visible: (params: TeleportBehaviorInteractionModeInterfaceParams) =>
-      params.interactionMode === 'Key',
+    visible: (params: TeleportBehaviorParams) => params.interactionMode === 'Key',
   })
   private yInteractionAdjustment = 0;
   @Param({
@@ -62,8 +57,7 @@ export default class TeleportBehavior extends ScriptBehavior {
     type: 'number',
     defaultValue: 2,
     name: 'Trigger distance',
-    visible: (params: TeleportBehaviorInteractionModeInterfaceParams) =>
-      params.interactionMode === 'Key',
+    visible: (params: TeleportBehaviorParams) => params.interactionMode === 'Key',
   })
   private triggerDistance = 2;
 
@@ -75,8 +69,7 @@ export default class TeleportBehavior extends ScriptBehavior {
     step: 0.1,
     type: 'number',
     name: 'FadeIn duration',
-    visible: (params: TeleportBehaviorAnimationsInterfaceParams) =>
-      params.isFadingAvailable === true,
+    visible: (params: TeleportBehaviorParams) => params.isFadingAvailable === true,
   })
   private fadeInDuration = 1;
   @Param({
@@ -84,8 +77,7 @@ export default class TeleportBehavior extends ScriptBehavior {
     step: 0.1,
     type: 'number',
     name: 'FadeOut duration',
-    visible: (params: TeleportBehaviorAnimationsInterfaceParams) =>
-      params.isFadingAvailable === true,
+    visible: (params: TeleportBehaviorParams) => params.isFadingAvailable === true,
   })
   private fadeOutDuration = 1;
   @Param({
@@ -94,8 +86,7 @@ export default class TeleportBehavior extends ScriptBehavior {
     type: 'number',
     defaultValue: 1,
     name: 'Teleport delay (seconds)',
-    visible: (params: TeleportBehaviorAnimationsInterfaceParams) =>
-      params.isFadingAvailable === true,
+    visible: (params: TeleportBehaviorParams) => params.isFadingAvailable === true,
   })
   private interactionHoldTime = 0;
 
@@ -115,6 +106,7 @@ export default class TeleportBehavior extends ScriptBehavior {
       targetComponent: this.componentTarget,
       fadeOutDuration: this.fadeOutDuration,
       isFadingAvailable: this.isFadingAvailable,
+      holdTimeDuration: this.interactionHoldTime,
     });
   }
 }
