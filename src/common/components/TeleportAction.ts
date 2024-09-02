@@ -5,10 +5,10 @@ import fadeIn from '../effects/FadeIn.ts';
 import fadeOut from '../effects/FadeOut.ts';
 
 interface TeleportActionInputParams {
-  fadeInDuration: number;
-  fadeOutDuration: number;
-  holdTimeDuration: number;
-  isFadingAvailable: boolean;
+  fadeInDuration?: number;
+  fadeOutDuration?: number;
+  holdTimeDuration?: number;
+  isFadingAvailable?: boolean;
   targetComponent: Component3D;
 }
 
@@ -38,16 +38,23 @@ export default ({
   fadeInDuration,
   targetComponent,
   fadeOutDuration,
-  holdTimeDuration,
-  isFadingAvailable,
+  holdTimeDuration = 0,
+  isFadingAvailable = false,
 }: TeleportActionInputParams): void => {
+  const delay = holdTimeDuration * 1000;
+
   try {
-    isFadingAvailable ? applyFadeOut(Player.avatar, fadeOutDuration) : null;
+    if (isFadingAvailable && fadeOutDuration) {
+      applyFadeOut(Player.avatar, fadeOutDuration);
+    }
 
     setTimeout(() => {
       teleportAvatar(targetComponent);
-      isFadingAvailable ? applyFadeIn(Player.avatar, fadeInDuration) : null;
-    }, holdTimeDuration * 1000);
+
+      if (isFadingAvailable && fadeInDuration) {
+        applyFadeIn(Player.avatar, fadeInDuration);
+      }
+    }, delay);
   } catch (error) {
     console.error(`Teleportation failed to ${targetComponent.name || 'unknown target'}:`, error);
   }
