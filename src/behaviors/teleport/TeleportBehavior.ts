@@ -1,11 +1,10 @@
 import { Folder, Param, $Param, ScriptBehavior } from '@oo/scripting';
 
 import TeleportAction from '../../common/components/TeleportAction.ts';
-import InteractionDirector from '../../common/utils/InteractionDirector.ts';
+import InteractionDirector from '../../common/interactions/InteractionDirector.ts';
 
 interface TeleportBehaviorParams {
   triggerKey: string;
-  secondsDelay: number;
   fadeInDuration: number;
   interactionMode: string;
   triggerDistance: number;
@@ -13,6 +12,7 @@ interface TeleportBehaviorParams {
   isFadingAvailable: boolean;
   interactionHoldTime: number;
   teleportToComponentId: string;
+  yInteractionAdjustment: number;
 }
 
 /**
@@ -71,7 +71,7 @@ export default class TeleportBehavior extends ScriptBehavior {
     name: 'FadeIn duration',
     visible: (params: TeleportBehaviorParams) => params.isFadingAvailable === true,
   })
-  private fadeInDuration = 1;
+  private fadeInDuration = 0;
   @Param({
     min: 0.1,
     step: 0.1,
@@ -79,7 +79,7 @@ export default class TeleportBehavior extends ScriptBehavior {
     name: 'FadeOut duration',
     visible: (params: TeleportBehaviorParams) => params.isFadingAvailable === true,
   })
-  private fadeOutDuration = 1;
+  private fadeOutDuration = 0;
   @Param({
     min: 0,
     step: 0.1,
