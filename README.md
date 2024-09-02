@@ -17,16 +17,24 @@ This directory contains the core of the game's frontend logic, including behavio
   - `ImplementationGuideOverlay.tsx`: Overlay component for implementation guidance.
   - `main.ts`: Main entry point for teleport behaviors.
   - `TeleportBehavior.ts`: Defines teleport behavior functionality.
+- `behaviors/redirect`: Handles redirection behaviors within the game.
+  - `all-in-one.ts`: Aggregated redirect behavior logic.
+  - `ImplementationGuideOverlay.tsx`: Overlay component for implementation guidance related to redirect.
+  - `main.ts`: Main entry point for redirect behaviors.
+  - `RedirectBehavior.ts`: Defines the redirect behavior functionality.
 - `common/components`: Commonly used components across the game.
   - `TeleportAction.ts`: Component handling teleport actions.
+  - `RedirectAction.ts`: Component handling redirection actions.
 - `common/effects`: Visual effects used in the game.
   - `FadeIn.ts`, `FadeOut.ts`: Components for fade-in and fade-out effects.
-- `store`: State management components for the game.
+- `common/interactions`: Manage in game interactions.
+  - `InteractionDirector.ts`: Manages interactions within the game.
+- `common/store`: State management components for the game.
   - `App.tsx`: Main application component.
   - `AppStore.ts`: Store for managing application state.
   - `Styles.tsx`: Styling components for the application.
-- `utils`: Utility functions and helper classes.
-  - `InteractionDirector.ts`: Manages interactions within the game.
+- `common/utils`: Utility functions and helper classes.
+  - `isValidUrl.ts`: Utility to validate URLs.
 - `oo-oncyber.d.ts`: TypeScript declaration file for Oncyber-specific types.
 
 ### `backend/openai-worker` (Optional in case you need a backend)
