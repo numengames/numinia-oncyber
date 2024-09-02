@@ -7,22 +7,19 @@ import {
   Component3D,
   ScriptBehavior,
 } from '@oo/scripting';
+import gsap from 'gsap';
 import { Vector3 } from 'three';
 
 interface TeleportInterfaceParams {
   triggerKey: string;
-  secondsDelay: number;
+  fadeInDuration: number;
   interactionMode: string;
   triggerDistance: number;
-  teleportToComponentId: string;
-  yInteractionAdjustment: number;
-}
-
-interface TeleportAnimationsInterfaceParams {
-  fadeInDuration: number;
   fadeOutDuration: number;
   isFadingAvailable: boolean;
   interactionHoldTime: number;
+  teleportToComponentId: string;
+  yInteractionAdjustment: number;
 }
 
 /**
@@ -81,25 +78,25 @@ export default class TeleportBehavior extends ScriptBehavior {
     type: 'number',
     defaultValue: 1,
     name: 'FadeIn duration',
-    visible: (params: TeleportAnimationsInterfaceParams) => params.isFadingAvailable === true,
+    visible: (params: TeleportInterfaceParams) => params.isFadingAvailable === true,
   })
-  private fadeInDuration = 1;
+  private fadeInDuration = 0;
   @Param({
     max: 10,
     min: 0.1,
     type: 'number',
     defaultValue: 1,
     name: 'FadeOut duration',
-    visible: (params: TeleportAnimationsInterfaceParams) => params.isFadingAvailable === true,
+    visible: (params: TeleportInterfaceParams) => params.isFadingAvailable === true,
   })
-  private fadeOutDuration = 1;
+  private fadeOutDuration = 0;
   @Param({
     min: 0,
     step: 0.1,
     type: 'number',
     defaultValue: 1,
     name: 'Teleport delay (seconds)',
-    visible: (params: TeleportAnimationsInterfaceParams) => params.isFadingAvailable === true,
+    visible: (params: TeleportInterfaceParams) => params.isFadingAvailable === true,
   })
   private interactionHoldTime = 0;
 
@@ -191,14 +188,14 @@ export default class TeleportBehavior extends ScriptBehavior {
   }
 
   private applyFadeOut() {
-    gsap.to(this.componentTarget, {
+    gsap.to(Player.avatar, {
       duration: this.fadeOutDuration,
       opacity: 0,
     });
   }
 
   private applyFadeIn() {
-    gsap.to(this.componentTarget, {
+    gsap.to(Player.avatar, {
       opacity: 1,
       duration: this.fadeInDuration,
     });
