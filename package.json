@@ -1,6 +1,6 @@
 {
   "name": "numinia-oncyber",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "This project is a warehouse of components designed to implement various functionalities within the Oncyber platform. These components can be used to enhance and customize spaces or levels in Oncyber.",
   "private": "true",
   "type": "module",
