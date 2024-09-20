@@ -1,8 +1,11 @@
-export default (url: string): boolean => {
+export default function isValidUrl(
+  url: string,
+  allowedDomains: string[] = [],
+): boolean {
   try {
-    new URL(url);
-    return true;
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === 'https:' && allowedDomains.includes(parsedUrl.hostname);
   } catch {
     return false;
   }
-};
+}
