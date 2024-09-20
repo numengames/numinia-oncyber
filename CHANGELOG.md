@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2024-09-20
+
+### Added
+
+- **feat:** Introduced the `Discord Notifier Component` that allows integration of Discord notifications within virtual environments.
+- **docs:** Added documentation for the `Discord Notifier Component` in `README.md`, explaining its purpose, implementation methods, and configuration.
+
+### Changed
+
+- **chore:** Updated directory structure to accommodate the new `Discord Notifier` component and its dependencies.
+- **chore:** Added backend setup instructions for deploying the Cloudflare Worker responsible for sending Discord notifications.
+
+### Fixed
+
+- **fix:** Resolved some minor path issues related to the new component dependencies.
+
 ## [1.2.1] - 2024-09-02
 
 ### Fixed
