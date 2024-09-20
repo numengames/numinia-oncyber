@@ -1,15 +1,29 @@
 {
     "root": true,
+    "env": {
+      "node": true,
+      "jest": true,
+      "browser": true
+    },
     "parser": "@typescript-eslint/parser",
     "plugins": [
+      "jest",
+      "react",
       "@typescript-eslint"
     ],
     "extends": [
       "eslint:recommended",
+      "plugin:jest/recommended",
+      "plugin:react/recommended",
       "plugin:prettier/recommended",
       "plugin:@typescript-eslint/eslint-recommended",
       "plugin:@typescript-eslint/recommended"
     ],
+    "settings": {
+      "react": {
+        "version": "detect",
+      }
+    },
     "rules": {
       "quotes": ["error", "single"],
       "@typescript-eslint/ban-ts-comment": "off",

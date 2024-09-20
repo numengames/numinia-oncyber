@@ -1,8 +1,10 @@
-export default (url: string): boolean => {
+export default function isValidUrl(
+  url: string,
+): boolean {
   try {
-    new URL(url);
-    return true;
+    const parsedUrl = new URL(url);
+    return parsedUrl.protocol === 'https:';
   } catch {
     return false;
   }
-};
+}

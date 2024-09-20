@@ -13,7 +13,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowImportingTsExtensions": true,
-    "types": ["./src/oo-oncyber.d.ts"],
+    "types": ["jest", "./src/oo-oncyber.d.ts"],
     "baseUrl": ".",
     "paths": {
       "*": ["./src/*", "node_modules/*"]
@@ -32,5 +32,5 @@
     "src/spaces/**/*.ts",
     "src/renders/**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist", "jest.config.js", "jest.setup.cjs"]
 }
