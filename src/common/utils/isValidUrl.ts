@@ -1,10 +1,9 @@
 export default function isValidUrl(
   url: string,
-  allowedDomains: string[] = [],
 ): boolean {
   try {
     const parsedUrl = new URL(url);
-    return parsedUrl.protocol === 'https:' && allowedDomains.includes(parsedUrl.hostname);
+    return parsedUrl.protocol === 'https:';
   } catch {
     return false;
   }
