@@ -1,5 +1,3 @@
-// src/common/network/network.ts
-
 interface PostRequestOptions {
   url: string;
   options?: RequestInit;
@@ -19,7 +17,11 @@ const network = {
       const id = setTimeout(() => controller.abort(), timeout);
 
       try {
-        const response = await fetch(url, { ...options, method: 'POST', signal: controller.signal });
+        const response = await fetch(url, {
+          ...options,
+          method: 'POST',
+          signal: controller.signal,
+        });
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`);
         }
