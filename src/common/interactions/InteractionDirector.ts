@@ -23,6 +23,11 @@ interface InteractionDirectorParams {
    * Adjustment to the Y position of the interaction.
    */
   yInteractionAdjustment: number;
+
+  /**
+   * Define if its possible to interact with the element just once or multiple times.
+   */
+  isActiveMultipleTimes: boolean;
 }
 
 /**
@@ -55,7 +60,7 @@ export default class InteractionDirector {
    * @param {() => void} action - The action to be executed when the interaction is triggered.
    */
   private async createInteractionByKey(
-    { distance, triggerKey, host, yInteractionAdjustment }: InteractionDirectorParams,
+    { distance, triggerKey, host, yInteractionAdjustment, isActiveMultipleTimes }: InteractionDirectorParams,
     action: () => void,
   ) {
     const interaction = await Components.create({
@@ -70,7 +75,10 @@ export default class InteractionDirector {
 
     interaction.active = true;
 
-    interaction.onInteraction(action.bind(this));
+    interaction.onInteraction(() => {
+      action();
+      interaction.active = isActiveMultipleTimes;
+    });
   }
 
   /**
@@ -78,8 +86,13 @@ export default class InteractionDirector {
    * @param {InteractionDirectorParams} params - The parameters for creating the proximity-based interaction.
    * @param {() => void} action - The action to be executed when the interaction is triggered.
    */
-  private async createInteractionAuto({ host }: InteractionDirectorParams, action: () => void) {
-    host.onSensorEnter(action);
+  private async createInteractionAuto({ host, isActiveMultipleTimes }: InteractionDirectorParams, action: () => void) {
+    function handleAction() {
+      action();
+      host.collider.isSensor = isActiveMultipleTimes;
+    };
+
+    host.onSensorEnter(handleAction);
   }
 
   /**

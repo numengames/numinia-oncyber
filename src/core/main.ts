@@ -1,15 +1,8 @@
-import * as React from 'react';
-import { UI, World } from '@oo/scripting';
+import { World } from '@oo/scripting';
 
-import ImplementationGuideOverlay from './ImplementationGuideOverlay.tsx';
+import { store } from '../common/state/appState';
 
 export default class Game {
-  private renderer;
-
-  constructor() {
-    this.renderer = UI.createRenderer();
-  }
-
   async onPreload() {
     // invoked once as soon as the game starts loading
     // Use this load resources not already on the scene
@@ -25,15 +18,10 @@ export default class Game {
   onStart = async () => {
     // invoked each time user starts or replays the game (everytime World.start() is called, we call it by default in Display script)
     // Use this for each play/replay game logic
+    World.name = 'Numinian tools - Insert Password';
     console.log('Game: start');
 
-    try {
-      World.name = 'Numinian tools - Discord Login Notifier';
-
-      this.renderer.render(React.createElement(ImplementationGuideOverlay));
-    } catch (error) {
-      console.error('Error during onStart:', error);
-    }
+    store.setState({});
   };
 
   onUpdate = () => {

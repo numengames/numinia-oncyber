@@ -13,6 +13,7 @@ declare module '@oo/scripting' {
     quaternion: any;
     getDimensions: () => any;
   };
+  export type AudioComponent = {};
 
   export const UI: UI;
   export const Param: any;
@@ -26,6 +27,7 @@ declare module '@oo/scripting' {
   export const Physics: any;
   export const Display: any;
   export const Emitter: any;
+  export const Receiver: any;
   export const Controls: any;
   export const Component: any;
   export const PlayerData: any;
