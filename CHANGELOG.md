@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2024-10-08
+
+### Added
+- **EventStorageReceiver**: Added `EventStorageReceiver` to store events for future processing.
+- **InsertPasswordEmitter**: Improved `InsertPasswordEmitter` to notify the `InteractionDirector` if the password was successfully resolved.
+- **InsertPasswordPrompt**: Enhanced the UX and flow of the password prompt.
+
+### Fixed
+- **RotateReceiver, TeleportReceiver, TranslateReceiver**: Fixed issues in the behavior of rotate, teleport, and translate receivers.
+- **Fade utilities**: Resolved bugs in the fade utilities (`fadeIn` and `fadeOut`).
+
+### Changed
+- **appState**: Minor updates in the global state management with `appState`.
+- **InteractionDirector**: Improved component state handling and event emission logic.
+- **Eslint and Prettier**: Updated eslint and prettier configurations.
+
 ## [1.3.0] - 2024-09-20
 
 ### Added
