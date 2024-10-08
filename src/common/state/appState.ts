@@ -3,6 +3,12 @@ import { UI } from '@oo/scripting';
 
 import App from '../../components/App.tsx';
 
+interface EventData {
+  eventType: string;
+  objectId: string;
+  message: string;
+}
+
 class Store<Data extends Record<string, any>> {
   renderer = UI.createRenderer();
 
@@ -41,7 +47,19 @@ class Store<Data extends Record<string, any>> {
   }
 }
 
-export const store = new Store({});
+export const store = new Store({
+  name: '',
+  userId: '',
+  eventQueue: [] as EventData[],
+});
+
+export const addEventToQueue = (eventData: EventData) => {
+  const currentQueue = store.getSnapshot().eventQueue;
+  store.setState({ eventQueue: [...currentQueue, eventData] });
+};
+
+export const getEventQueue = () => store.getSnapshot().eventQueue;
+export const clearEventQueue = () => store.setState({ eventQueue: [] });
 
 store.subscribe(() => {
   store.renderer.render(React.createElement(App));

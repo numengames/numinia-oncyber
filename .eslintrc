@@ -17,15 +17,17 @@
       "plugin:react/recommended",
       "plugin:prettier/recommended",
       "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended"
+      "plugin:@typescript-eslint/recommended",
+      "prettier"
     ],
     "settings": {
       "react": {
-        "version": "detect",
+        "version": "detect"
       }
     },
     "rules": {
       "quotes": ["error", "single"],
+      "object-curly-spacing": ["off"],
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "error"

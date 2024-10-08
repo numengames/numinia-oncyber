@@ -1,12 +1,16 @@
 import { Folder, Param, $Param, ScriptBehavior } from '@oo/scripting';
 
-import InteractionDirector from '../../common/interactions/InteractionDirector';
+import InteractionDirector, {
+  InteractionDirectorOptionParams,
+} from '../../common/interactions/InteractionDirector';
 
 interface BaseEmitterParams {
   triggerKey?: string;
   interactionMode: string;
   triggerDistance?: number;
+  xInteractionAdjustment?: number;
   yInteractionAdjustment?: number;
+  zInteractionAdjustment?: number;
 }
 
 /**
@@ -19,10 +23,10 @@ export default class BaseEmitter extends ScriptBehavior {
   };
 
   @Param({ name: 'Signal sender' })
-  private enterSignal = $Param.Signal();
+  private senderSignal = $Param.Signal();
 
   @Param({ type: 'boolean', defaultValue: false, name: 'Can emit signals multiple times?' })
-  private doesEmitMultipleTimes = false;
+  private isActiveMultipleTimes = false;
 
   @Folder('Interaction Mode')
   @Param({
@@ -32,19 +36,41 @@ export default class BaseEmitter extends ScriptBehavior {
     options: ['Auto', 'Key'],
   })
   private interactionMode = 'Auto';
+
   @Param({
     type: 'string',
     name: 'Trigger key',
     visible: (params: BaseEmitterParams) => params.interactionMode === 'Key',
   })
   private triggerKey = 'E';
+
   @Param({
+    min: -20,
     step: 0.1,
     type: 'number',
-    name: 'Key dialog adjustment',
+    name: 'X Key dialog adjustment',
+    visible: (params: BaseEmitterParams) => params.interactionMode === 'Key',
+  })
+  private xInteractionAdjustment = 0;
+
+  @Param({
+    min: -20,
+    step: 0.1,
+    type: 'number',
+    name: 'Y Key dialog adjustment',
     visible: (params: BaseEmitterParams) => params.interactionMode === 'Key',
   })
   private yInteractionAdjustment = 0;
+
+  @Param({
+    min: -20,
+    step: 0.1,
+    type: 'number',
+    name: 'Z Key dialog adjustment',
+    visible: (params: BaseEmitterParams) => params.interactionMode === 'Key',
+  })
+  private zInteractionAdjustment = 0;
+
   @Param({
     min: 0.1,
     step: 0.1,
@@ -55,10 +81,47 @@ export default class BaseEmitter extends ScriptBehavior {
   })
   private triggerDistance = 2;
 
+  private options?: InteractionDirectorOptionParams;
+
   /**
    * Called when the script is ready.
    */
   onReady = async () => {
-    await InteractionDirector.handle(this, () => this.enterSignal.emit());
+    this.options = {
+      interactionAdjustment: {
+        x: this.xInteractionAdjustment,
+        y: this.yInteractionAdjustment,
+        z: this.zInteractionAdjustment,
+      },
+      triggerDistance: this.triggerDistance,
+      isActiveMultipleTimes: this.isActiveMultipleTimes,
+    };
+
+    await InteractionDirector.handle(
+      {
+        host: this.host,
+        triggerKey: this.triggerKey,
+        options: { interactionMode: this.interactionMode },
+      },
+      this.handleInteractionStart.bind(this),
+      this.handleInteractionEnd.bind(this),
+      this.options,
+    );
   };
+
+  /**
+   * Handles what happens when the interaction starts.
+   * @param {Function} callback - Optional callback to notify success or failure.
+   */
+  private handleInteractionStart(callback?: (response: boolean) => void) {
+    if (callback) {
+      callback(true);
+    }
+    this.senderSignal.emit();
+  }
+
+  /**
+   * Handles what happens when the interaction ends.
+   */
+  private handleInteractionEnd() {}
 }

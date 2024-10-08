@@ -1,19 +1,20 @@
 import * as React from 'react';
 import { Folder, Param, $Param, ScriptBehavior, UI } from '@oo/scripting';
 
-import InsertPasswordPrompt from './InsertPasswordPrompt.tsx';
-import InteractionDirector from '../../../common/interactions/InteractionDirector';
+import InsertPasswordPrompt from './InsertPasswordPrompt';
+import InteractionDirector, {
+  InteractionDirectorOptionParams,
+} from '../../../common/interactions/InteractionDirector.ts';
 
 interface InsertPasswordEmitterParams {
   triggerKey?: string;
   interactionMode: string;
   triggerDistance?: number;
+  xInteractionAdjustment?: number;
   yInteractionAdjustment?: number;
+  zInteractionAdjustment?: number;
 }
 
-/**
- * Main class to handle the emitter in the script.
- */
 export default class InsertPasswordEmitter extends ScriptBehavior {
   static config = {
     title: 'Emitter - Insert Password',
@@ -22,17 +23,20 @@ export default class InsertPasswordEmitter extends ScriptBehavior {
 
   private renderer = UI.createRenderer();
 
-  @Param({ name: 'Signal sender' })
-  private enterSignal = $Param.Signal();
+  @Param({ name: 'Password solved signal sender' })
+  private passwordSolvedSignal = $Param.Signal();
+
+  @Param({ name: 'Password error signal sender' })
+  private passwordErrorSignal = $Param.Signal();
 
   @Param({
     type: 'string',
-    name: 'Master password'
+    name: 'Master password',
   })
   private masterPassword = '';
 
   @Param({ type: 'boolean', defaultValue: false, name: 'Can emit signals multiple times?' })
-  private doesEmitMultipleTimes = false;
+  private isActiveMultipleTimes = false;
 
   @Folder('Interaction Mode')
   @Param({
@@ -42,20 +46,41 @@ export default class InsertPasswordEmitter extends ScriptBehavior {
     options: ['Auto', 'Key'],
   })
   private interactionMode = 'Auto';
+
   @Param({
     type: 'string',
     name: 'Trigger key',
     visible: (params: InsertPasswordEmitterParams) => params.interactionMode === 'Key',
   })
-
   private triggerKey = 'E';
+
   @Param({
+    min: -20,
     step: 0.1,
     type: 'number',
-    name: 'Key dialog adjustment',
+    name: 'X Key dialog adjustment',
+    visible: (params: InsertPasswordEmitterParams) => params.interactionMode === 'Key',
+  })
+  private xInteractionAdjustment = 0;
+
+  @Param({
+    min: -20,
+    step: 0.1,
+    type: 'number',
+    name: 'Y Key dialog adjustment',
     visible: (params: InsertPasswordEmitterParams) => params.interactionMode === 'Key',
   })
   private yInteractionAdjustment = 0;
+
+  @Param({
+    min: -20,
+    step: 0.1,
+    type: 'number',
+    name: 'Z Key dialog adjustment',
+    visible: (params: InsertPasswordEmitterParams) => params.interactionMode === 'Key',
+  })
+  private zInteractionAdjustment = 0;
+
   @Param({
     min: 0.1,
     step: 0.1,
@@ -66,21 +91,62 @@ export default class InsertPasswordEmitter extends ScriptBehavior {
   })
   private triggerDistance = 2;
 
+  private options?: InteractionDirectorOptionParams;
+
   onReady = async () => {
-    await InteractionDirector.handle(this, this.showInsertPassword.bind(this));
+    this.options = {
+      interactionAdjustment: {
+        x: this.xInteractionAdjustment,
+        y: this.yInteractionAdjustment,
+        z: this.zInteractionAdjustment,
+      },
+      triggerDistance: this.triggerDistance,
+      isActiveMultipleTimes: this.isActiveMultipleTimes,
+    };
+
+    try {
+      await InteractionDirector.handle(
+        {
+          host: this.host,
+          triggerKey: this.triggerKey,
+          options: { interactionMode: this.interactionMode },
+        },
+        this.handleInteractionStart.bind(this),
+        this.handleInteractionEnd.bind(this),
+        this.options,
+      );
+    } catch (error) {
+      console.error('Error handling interaction:', error);
+    }
   };
 
-  private showInsertPassword() {
+  private handleInteractionStart(callback?: (response: boolean) => void) {
+    const handleSolvedPassword = () => {
+      if (callback) {
+        callback(true);
+      }
+      this.passwordSolvedSignal.emit();
+    };
+
     this.renderer.render(
       <InsertPasswordPrompt
         key={new Date().getTime()}
+        onError={this.handleErrorPassword.bind(this)}
         masterPassword={this.masterPassword}
-        onSuccess={this.handleSolvedPassword}
-      />
+        onSuccess={handleSolvedPassword.bind(this)}
+      />,
     );
   }
 
-  private handleSolvedPassword = () => {
-    this.passwordSolvedSignal.emit()
+  private handleInteractionEnd() {
+    this.hidePasswordPrompt();
+  }
+
+  private hidePasswordPrompt() {
+    this.renderer.render(null);
+  }
+
+  private handleErrorPassword() {
+    this.passwordErrorSignal.emit();
   }
 }

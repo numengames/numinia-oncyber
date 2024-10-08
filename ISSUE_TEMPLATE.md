@@ -1,40 +1,38 @@
 ---
 name: Bug Report
-about: Report a bug to help us improve
+about: Report an issue related to data models or schema errors
 title: ''
 labels: 'bug'
 assignees: ''
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Describe the bug**  
+A clear and concise description of what the bug is related to the data model or schema (e.g., validation error, incorrect schema, missing field).
 
-**To Reproduce**
-Steps to reproduce the behavior:
+**To Reproduce**  
+Steps to reproduce the issue:
 
-1. Go to '...'
-2. Click on '...'
-3. Scroll down to '...'
-4. See error
+1. Query or operation that triggered the bug.
+2. The expected vs actual result.
+3. Example of data or payload used (if applicable).
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Expected behavior**  
+A clear and concise description of what you expected the schema or data model to do.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Logs and Error Messages**  
+If applicable, include relevant logs or error messages that help diagnose the issue (e.g., validation errors, MongoDB errors).
 
-**Desktop (please complete the following information):**
+**Database Details**
 
-- OS: [e.g. Windows, macOS]
-- Browser [e.g. Chrome, Safari]
-- Version [e.g. 22]
+- MongoDB version: [e.g. 4.2]
+- Mongoose version: [e.g. 6.0]
+- Node.js version: [e.g. 20.x]
 
-**Smartphone (please complete the following information):**
+**Environment (if applicable)**
 
-- Device: [e.g. iPhone6]
-- OS: [e.g. iOS8.1]
-- Browser [e.g. stock browser, Safari]
-- Version [e.g. 22]
+- OS: [e.g. Ubuntu, macOS]
+- Node.js Version: [e.g. 16.14.0]
+- Mongoose Version: [e.g. 6.2.1]
 
-**Additional context**
-Add any other context about the problem here.
+**Additional context**  
+Add any other context related to the problem. For example, is it happening only with certain queries or data?

@@ -9,24 +9,7 @@ import {
 } from '@oo/scripting';
 import { Vector3 } from 'three';
 
-import fadeIn from '../../common/utils/fadeIn';
-import fadeOut from '../../common/utils/fadeOut';
-
-interface TeleportReceiverInputParams {
-  fadeInDuration?: number;
-  fadeOutDuration?: number;
-  holdTimeDuration?: number;
-  isFadingAvailable?: boolean;
-  targetComponent: Component3D;
-}
-
-const applyFadeOut = (target: Component3D, duration: number) => {
-  fadeOut({ target, duration });
-};
-
-const applyFadeIn = (target: Component3D, duration: number) => {
-  fadeIn({ target, duration });
-};
+import { addEventToQueue } from '../../common/state/appState';
 
 export default class TeleportReceiver extends ScriptBehavior<Component3D> {
   @Param({
@@ -35,34 +18,17 @@ export default class TeleportReceiver extends ScriptBehavior<Component3D> {
   })
   private targetComponent = $Param.Component('any');
 
-  @Folder('Animations')
-  @Param({ type: 'boolean', defaultValue: false, name: 'Enable fadeIn - fadeOut' })
-  private isFadingAvailable = false;
-  @Param({
-    min: 0.1,
-    step: 0.1,
-    type: 'number',
-    name: 'FadeIn duration',
-    visible: (params: TeleportReceiverInputParams) => params.isFadingAvailable === true,
-  })
-  private fadeInDuration = 0;
-  @Param({
-    min: 0.1,
-    step: 0.1,
-    type: 'number',
-    name: 'FadeOut duration',
-    visible: (params: TeleportReceiverInputParams) => params.isFadingAvailable === true,
-  })
-  private fadeOutDuration = 0;
   @Param({
     min: 0,
     step: 0.1,
     type: 'number',
     defaultValue: 1,
     name: 'Receiver execution delay (in seconds)',
-    visible: (params: TeleportReceiverInputParams) => params.isFadingAvailable === true,
   })
   private holdTimeDuration = 0;
+
+  @Param({ name: 'Log signal sender' })
+  private logSignalSender = $Param.Signal();
 
   private teleportAvatar(target: Component3D) {
     const targetPosition = this.targetComponent.position;
@@ -87,18 +53,17 @@ export default class TeleportReceiver extends ScriptBehavior<Component3D> {
         throw new Error('Collider must be activated to have rigidBody property available');
       }
 
-      if (this.isFadingAvailable && this.fadeOutDuration) {
-        applyFadeOut(target, this.fadeOutDuration);
-      }
+      addEventToQueue({
+        eventType: 'teleport',
+        objectId: this.host.name,
+        message: `Teleported to ${this.targetComponent.name || 'unknown target'}`,
+      });
 
       const delay = this.holdTimeDuration * 1000;
 
       setTimeout(() => {
         this.teleportAvatar(target);
-
-        if (this.isFadingAvailable && this.fadeInDuration) {
-          applyFadeIn(target, this.fadeInDuration);
-        }
+        this.logSignalSender.emit();
       }, delay);
     } catch (error) {
       console.error(
