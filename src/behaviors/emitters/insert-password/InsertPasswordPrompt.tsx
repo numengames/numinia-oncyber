@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 
 interface PasswordPromptProps {
+  onError: () => void;
   onSuccess: () => void;
   masterPassword: string;
 }
@@ -99,6 +100,7 @@ const styles = `
 `;
 
 const InsertPasswordPrompt = ({
+  onError,
   onSuccess,
   masterPassword,
 }: PasswordPromptProps): JSX.Element | null => {
@@ -118,6 +120,7 @@ const InsertPasswordPrompt = ({
     } else {
       setPassword('');
       setErrorMessage('Incorrect password');
+      onError();
     }
   };
 
@@ -126,6 +129,8 @@ const InsertPasswordPrompt = ({
   };
 
   if (!isVisible) return null;
+
+  document.exitPointerLock();
 
   return (
     <>

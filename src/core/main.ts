@@ -1,4 +1,4 @@
-import { World } from '@oo/scripting';
+import { World, Player } from '@oo/scripting';
 
 import { store } from '../common/state/appState';
 
@@ -21,7 +21,8 @@ export default class Game {
     World.name = 'Numinian tools - Insert Password';
     console.log('Game: start');
 
-    store.setState({});
+    const { name, userId } = Player.data;
+    store.setState({ userId, name });
   };
 
   onUpdate = () => {

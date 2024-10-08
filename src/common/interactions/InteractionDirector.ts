@@ -1,117 +1,137 @@
 import { Component3D, Components, Player } from '@oo/scripting';
 
-/**
- * Parameters for configuring an interaction in the InteractionDirector.
- */
-interface InteractionDirectorParams {
-  /**
-   * Optional distance within which the interaction is active.
-   */
-  distance?: number;
+export interface InteractionAdjustment {
+  x: number;
+  y: number;
+  z: number;
+}
 
-  /**
-   * The 3D component that serves as the reference for the interaction's position.
-   */
-  host: Component3D;
-
-  /**
-   * The key that triggers the interaction.
-   */
-  triggerKey: string;
-
-  /**
-   * Adjustment to the Y position of the interaction.
-   */
-  yInteractionAdjustment: number;
-
-  /**
-   * Define if its possible to interact with the element just once or multiple times.
-   */
+export interface InteractionDirectorOptionParams {
+  triggerDistance?: number;
+  interactionAdjustment: InteractionAdjustment;
   isActiveMultipleTimes: boolean;
 }
 
-/**
- * Manages and creates interactions in the environment, such as key-triggered or proximity-based interactions.
- */
+interface InteractionDirectorParams {
+  host: Component3D;
+  triggerKey: string;
+  options?: Record<string, any>;
+}
+
 export default class InteractionDirector {
   /**
    * Handles the interaction based on the specified interaction mode.
-   * @param {any} context - The context containing interaction mode and other parameters.
-   * @param {() => void} action - The action to be executed when the interaction is triggered.
+   * @param {InteractionDirectorParams} params - Parameters for the interaction.
+   * @param {(callback?: (response: boolean) => void) => void} handleInteractionStart - The action to be executed when entering the interaction range.
+   * @param {() => void} handleInteractionEnd - The action to be executed when exiting the interaction range.
+   * @param {InteractionDirectorOptionParams} options - Options to configure the interaction.
    */
-  static async handle(context: any, action: () => void) {
+  static async handle(
+    params: InteractionDirectorParams,
+    handleInteractionStart: (callback?: (response: boolean) => void) => void,
+    handleInteractionEnd: () => void,
+    options?: InteractionDirectorOptionParams,
+  ) {
     const director = new InteractionDirector();
 
-    switch (context.interactionMode) {
+    switch (params.options?.interactionMode) {
       case 'Key':
-        await director.createInteractionByKey(context, action);
+        await director.createKeyInteraction(params, handleInteractionStart, options);
         break;
       case 'Auto':
-        await director.createInteractionAuto(context, action);
+        await director.createProximityInteraction(
+          params,
+          handleInteractionStart,
+          handleInteractionEnd,
+          options,
+        );
         break;
       default:
-        return;
+        throw new Error('Unknown interaction mode');
     }
   }
 
   /**
-   * Creates an interaction that is triggered by a key press.
-   * @param {InteractionDirectorParams} params - The parameters for creating the key-triggered interaction.
-   * @param {() => void} action - The action to be executed when the interaction is triggered.
+   * Creates an interaction triggered by a key press.
+   * @param {InteractionDirectorParams} params - Parameters for the interaction.
+   * @param {(callback?: (response: boolean) => void) => void} onInteractionSuccess - Action to execute upon interaction success.
+   * @param {InteractionDirectorOptionParams} options - Interaction configuration options.
    */
-  private async createInteractionByKey(
-    { distance, triggerKey, host, yInteractionAdjustment, isActiveMultipleTimes }: InteractionDirectorParams,
-    action: () => void,
+  private async createKeyInteraction(
+    { triggerKey, host }: InteractionDirectorParams,
+    onInteractionSuccess: (callback?: (response: boolean) => void) => void,
+    options?: InteractionDirectorOptionParams,
   ) {
-    const interaction = await Components.create({
-      distance,
-      type: 'interaction',
-      distanceTarget: Player.avatar.position,
-      atlas: `keyboard_${triggerKey.toLowerCase()}_outline`,
-      key: `Key${triggerKey.toUpperCase()}`,
-    });
+    try {
+      const interaction = await Components.create({
+        active: true,
+        type: 'interaction',
+        key: `Key${triggerKey.toUpperCase()}`,
+        distanceTarget: Player.avatar.position,
+        distance: options?.triggerDistance || 0,
+        atlas: `keyboard_${triggerKey.toLowerCase()}_outline`,
+      });
 
-    this.updateInteractionPosition({ interaction, host, yInteractionAdjustment });
+      this.updateInteractionPosition({ interaction, host, options });
 
-    interaction.active = true;
-
-    interaction.onInteraction(() => {
-      action();
-      interaction.active = isActiveMultipleTimes;
-    });
+      interaction.onInteraction(() => {
+        onInteractionSuccess(response => {
+          if (response && !options?.isActiveMultipleTimes) {
+            interaction.destroy();
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Failed to create key interaction:', error);
+    }
   }
 
   /**
    * Creates an automatic interaction based on proximity.
-   * @param {InteractionDirectorParams} params - The parameters for creating the proximity-based interaction.
-   * @param {() => void} action - The action to be executed when the interaction is triggered.
+   * @param {InteractionDirectorParams} params - Parameters for the interaction.
+   * @param {(callback?: (response: boolean) => void) => void} onInteractionEnter - Action to execute when entering the interaction range.
+   * @param {() => void} onInteractionExit - Action to execute when exiting the interaction range.
+   * @param {InteractionDirectorOptionParams} options - Interaction configuration options.
    */
-  private async createInteractionAuto({ host, isActiveMultipleTimes }: InteractionDirectorParams, action: () => void) {
-    function handleAction() {
-      action();
-      host.collider.isSensor = isActiveMultipleTimes;
-    };
+  private async createProximityInteraction(
+    { host }: InteractionDirectorParams,
+    onInteractionEnter: (callback?: (response: boolean) => void) => void,
+    onInteractionExit: () => void,
+    options?: InteractionDirectorOptionParams,
+  ) {
+    host.onSensorEnter(() => {
+      onInteractionEnter(response => {
+        if (response && !options?.isActiveMultipleTimes) {
+          host.collider.enabled = false;
+        }
+      });
+    });
 
-    host.onSensorEnter(handleAction);
+    host.onSensorExit(onInteractionExit);
   }
 
   /**
    * Updates the position of the interaction relative to a host component.
-   * @param {object} params - The parameters for updating the interaction position.
+   * @param {object} params - Parameters for updating the interaction position.
    * @param {any} params.interaction - The interaction to update.
    * @param {Component3D} params.host - The 3D component whose position is used as the reference.
-   * @param {number} [params.yInteractionAdjustment=0] - Additional offset to adjust the Y position.
+   * @param {InteractionDirectorOptionParams} options - Options to configure the position adjustment.
    */
   private updateInteractionPosition({
-    interaction,
     host,
-    yInteractionAdjustment = 0,
+    interaction,
+    options,
   }: {
-    interaction: any; //TODO: Explore how to setup oo-oncyber.d.ts to allow here ScriptComponent avoiding issues from the linter
+    interaction: any; // TODO: Setup oo-oncyber.d.ts to avoid issues from the linter
     host: Component3D;
-    yInteractionAdjustment?: number;
+    options?: InteractionDirectorOptionParams;
   }) {
     interaction.position.copy(host.position);
-    interaction.position.y = host.position.y + host.getDimensions().y + yInteractionAdjustment;
+    interaction.position.x =
+      host.position.x + host.getDimensions().x + (options?.interactionAdjustment.x || 0);
+    interaction.position.y =
+      host.position.y + host.getDimensions().y + (options?.interactionAdjustment.y || 0);
+    interaction.position.z =
+      host.position.z + host.getDimensions().z + (options?.interactionAdjustment.z || 0);
   }
 }
