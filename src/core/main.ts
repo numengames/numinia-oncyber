@@ -9,6 +9,60 @@ export default class Game {
     console.log('Game: preload');
   }
 
+  private async sendPlayerSessionRequest(endpoint: string, bodyData: Record<string, any>) {
+    try {
+      // const response = await fetch(`https://core-api.numinia.xyz/api/player-session/${endpoint}`, {
+      const response = await fetch(
+        `https://nnbz8th8-8000.uks1.devtunnels.ms/api/player-session/${endpoint}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bodyData),
+        },
+      );
+      const data = await response.json();
+      console.log('Success:', data);
+      return data.sessionId;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  private async checkAndCreatePlayer({ platform, playerId, playerName }: Record<string, string>) {
+    try {
+      const response = await fetch(
+        `https://nnbz8th8-8000.uks1.devtunnels.ms/api/player/${platform}/${playerId}`,
+      );
+
+      const data = await response.json();
+
+      if (data.message === 'Player not found' && data.player === null) {
+        const createResponse = await fetch(
+          'https://nnbz8th8-8000.uks1.devtunnels.ms/api/player/external',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ platform, playerId, playerName }),
+          },
+        );
+
+        if (!createResponse.ok) {
+          throw new Error('Failed to create player');
+        }
+
+        return createResponse.json();
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error checking or creating player:', error);
+    }
+  }
+
   onReady = async () => {
     // invoked once when the game has finished loading
     // Use this for one time initialization logic
@@ -22,7 +76,28 @@ export default class Game {
     console.log('Game: start');
 
     const { name, userId } = Player.data;
-    store.setState({ userId, name });
+
+    let playerId;
+
+    if (playerId) {
+      const result = await this.checkAndCreatePlayer({
+        playerId: userId,
+        playerName: name,
+        platform: 'oncyber',
+      });
+      playerId = result?.playerId;
+    }
+
+    const bodyData = {
+      spaceName: name,
+      userAgent: navigator.userAgent,
+      platform: 'oncyber',
+      ...(playerId && { playerId }),
+    };
+
+    const sessionId = await this.sendPlayerSessionRequest('start', bodyData);
+
+    store.setState({ userId: playerId, name, sessionId });
   };
 
   onUpdate = () => {
@@ -49,5 +124,8 @@ export default class Game {
   onDispose = async () => {
     // invoked when it's time to dispose resources (e.g. refreshing the page/switching pages)
     console.log('Game: dispose');
+
+    const { sessionId } = store.getSnapshot();
+    await this.sendPlayerSessionRequest('end', { sessionId });
   };
 }

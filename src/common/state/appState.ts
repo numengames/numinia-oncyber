@@ -50,6 +50,7 @@ class Store<Data extends Record<string, any>> {
 export const store = new Store({
   name: '',
   userId: '',
+  sessionId: '',
   eventQueue: [] as EventData[],
 });
 
